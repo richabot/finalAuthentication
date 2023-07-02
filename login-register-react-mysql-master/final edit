@@ -1,0 +1,67 @@
+//login
+
+
+router.post("/", async (req, res) => {
+  console.log('res', user);
+
+  const user1 = await db.User.findOne({
+    where: {
+      email: req.body.email
+    }
+  });
+  
+  if (!user.twofactor || !user.twofactor.secret) {
+    console.log("user details", user)
+    const { error } = validate(req.body);
+
+    if (error) return res.status(400).send(error.details[0].message);
+
+    // Replace below line with `await` database search for users
+    const user1 = await db.User.findOne({
+      where: {
+        email: req.body.email
+      }
+    });
+    if (!user1) return res.status(400).send("Invalid email or password");
+
+
+    const validPassword = await bcrypt.compare(req.body.password, user1.password);
+    if (!validPassword) return res.status(400).send("Invalid email or password");
+
+    const token = user1.generateAuthToken();
+
+    res.send(token);
+  } else {
+    console.log("authenticated category")
+    const user1 = await db.User.findOne({
+      where: {
+        email: req.body.email
+      }
+    });
+    if (!user1) return res.status(400).send("Invalid email or password");
+
+
+    const validPassword = await bcrypt.compare(req.body.password, user1.password);
+    if (!validPassword) return res.status(400).send("Invalid email or password");
+    const token = user1.generateAuthToken();
+
+    // res.send(token);
+    if (!req.headers['x-otp']) {
+      return res.status(206).send(token);
+    }
+    //validate otp
+    var verified = speakeasy.totp.verify({
+      secret: user.twofactor.secret,
+      encoding: 'base32',
+      token: req.headers['x-otp']
+    });
+    if (verified) {
+      return res.send('success');
+    } else {
+      return res.status(400).send('Invalid OTP');
+    }
+
+  }
+
+
+});

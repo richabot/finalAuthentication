@@ -1,0 +1,20 @@
+.profile-container {
+  display: flex;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.side-panel button {
+  margin-bottom: 10px;
+}
+
+.side-panel button.active {
+  font-weight: bold;
+}
+
+.component {
+  margin-left: 20px;
+}
